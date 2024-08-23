@@ -23,24 +23,24 @@ class MainController extends Controller
     public function file(Request $request)
     {
         $dir = public_path() . '/apifiles/';
-        
+
         if (file_exists($dir.$request->api_shortcode.'/'.$request->file)) {
             $pathinfo = pathinfo($dir.$request->api_shortcode.'/'.$request->file);
-            
+
             if (isset($pathinfo['filename'])) {
                 $tmp = explode("-", $pathinfo['filename']);
-                
+
                 if (count($tmp) == 2 && is_numeric($tmp[1])) {
                     $item = Skin::where('id', '=', $tmp[1])->first();
-                    
+
                     if ($item) {
                         $item->downloads = intval($item->downloads) + 1;
-                        
+
                         $item->save();
                     }
                 }
             }
-            
+
             // сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
             // если этого не сделать файл будет читаться в память полностью!
             if (ob_get_level()) {
@@ -65,14 +65,14 @@ class MainController extends Controller
 
             exit;
         }
-        
+
         abort(404);
     }
 
     public function adminfile(Request $request)
     {
         $dir = public_path() . '/apifiles/';
-        
+
         if (file_exists($dir.$request->api_shortcode.'/'.$request->file)) {
             // сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
             // если этого не сделать файл будет читаться в память полностью!
@@ -98,26 +98,23 @@ class MainController extends Controller
 
             exit;
         }
-        
+
         abort(404);
     }
 
     public function skinfile(Request $request)
     {
         $item = Skin::where('id', '=', $request->skin_id)->first();
-        
+
         if ($item) {
             if ($item->file_link) {
                 if (stripos($item->file_link, "http://") === 0 || stripos($item->file_link, "https://") === 0) {
-                    $item->downloads = intval($item->downloads) + 1;
-                    $item->save();
-                    
                     header("Location: " . $item->file_link);
                     exit;
                 }
             }
         }
-        
+
         abort(404);
     }
 }
